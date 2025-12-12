@@ -17,6 +17,8 @@ import FarmManagement from "./pages/solutions/FarmManagement";
 import SoilWeatherMonitoring from "./pages/solutions/SoilandWeatherMonitoring";
 import AIDataAnalytics from "./pages/solutions/AIandDataAnalytics";
 import SustainableAgTech from "./pages/solutions/SustainableAgTech";
+import AdminLogin from "./pages/admin/AdminLogin";
+import AdminSignup from "./pages/admin/AdminSignup";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import PostEditor from "./pages/admin/PostEditor";
 
@@ -36,6 +38,8 @@ const App = () => (
           <Route path="/contact" element={<Contact />} />
           <Route path="/updates" element={<Updates />} />
           <Route path="/updates/:slug" element={<UpdateDetail />} />
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin/signup" element={<AdminSignup />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/posts/:id" element={<PostEditor />} />
           <Route path="/solutions/solar-smart-irrigation" element={<SolarSmartIrrigation />} />

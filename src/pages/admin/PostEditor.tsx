@@ -22,12 +22,12 @@ import {
   Upload, 
   X, 
   Image as ImageIcon,
-  Lock,
   Loader2,
   GripVertical
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useAdminAuth } from '@/hooks/useAdminAuth';
 
 interface PostImage {
   id?: string;
@@ -37,8 +37,6 @@ interface PostImage {
   file?: File;
 }
 
-const ADMIN_PASSWORD = 'agririse2024';
-
 const PostEditor = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -46,9 +44,7 @@ const PostEditor = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
   
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [password, setPassword] = useState('');
-  const [passwordError, setPasswordError] = useState('');
+  const { user, isAdmin, loading: authLoading } = useAdminAuth();
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   
@@ -67,28 +63,22 @@ const PostEditor = () => {
   const isEditing = id !== 'new';
 
   useEffect(() => {
-    const authStatus = sessionStorage.getItem('admin_authenticated');
-    if (authStatus === 'true') {
-      setIsAuthenticated(true);
+    if (!authLoading) {
+      if (!user) {
+        navigate('/admin/login');
+      } else if (!isAdmin) {
+        toast({
+          title: 'Access denied',
+          description: 'You do not have admin privileges.',
+          variant: 'destructive'
+        });
+        supabase.auth.signOut();
+        navigate('/admin/login');
+      } else if (isEditing && id) {
+        fetchPost();
+      }
     }
-  }, []);
-
-  useEffect(() => {
-    if (isAuthenticated && isEditing && id) {
-      fetchPost();
-    }
-  }, [isAuthenticated, isEditing, id]);
-
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (password === ADMIN_PASSWORD) {
-      setIsAuthenticated(true);
-      sessionStorage.setItem('admin_authenticated', 'true');
-      setPasswordError('');
-    } else {
-      setPasswordError('Incorrect password');
-    }
-  };
+  }, [authLoading, user, isAdmin, isEditing, id, navigate]);
 
   const fetchPost = async () => {
     setLoading(true);
@@ -205,7 +195,6 @@ const PostEditor = () => {
     const [draggedItem] = newImages.splice(draggedIndex, 1);
     newImages.splice(dropIndex, 0, draggedItem);
     
-    // Update display_order for all images
     const reorderedImages = newImages.map((img, idx) => ({
       ...img,
       display_order: idx
@@ -273,7 +262,6 @@ const PostEditor = () => {
     try {
       let finalCoverImage = coverImage;
 
-      // Upload cover image if new
       if (coverFile) {
         const uploadedUrl = await uploadImage(coverFile, 'covers');
         if (uploadedUrl) {
@@ -312,7 +300,6 @@ const PostEditor = () => {
         postId = data.id;
       }
 
-      // Handle gallery images
       for (const img of galleryImages) {
         if (img.file) {
           const uploadedUrl = await uploadImage(img.file, `gallery/${postId}`);
@@ -325,7 +312,6 @@ const PostEditor = () => {
             });
           }
         } else if (img.id) {
-          // Update existing image caption and display_order
           await supabase.from('post_images')
             .update({ 
               caption: img.caption || null,
@@ -352,39 +338,12 @@ const PostEditor = () => {
     }
   };
 
-  if (!isAuthenticated) {
+  if (authLoading || (!user && !authLoading)) {
     return (
       <div className="min-h-screen bg-background flex flex-col">
         <Navigation />
-        <div className="flex-1 flex items-center justify-center py-20">
-          <Card className="w-full max-w-md mx-4">
-            <CardHeader className="text-center">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Lock className="w-8 h-8 text-primary" />
-              </div>
-              <CardTitle className="text-2xl">Admin Access</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleLogin} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter admin password"
-                  />
-                  {passwordError && (
-                    <p className="text-sm text-destructive">{passwordError}</p>
-                  )}
-                </div>
-                <Button type="submit" className="w-full">
-                  Access Dashboard
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
+        <div className="flex-1 flex items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </div>
         <Footer />
       </div>
@@ -499,15 +458,6 @@ const PostEditor = () => {
                     rows={2}
                   />
                 </div>
-
-                <div className="space-y-2">
-                  <Label>Content *</Label>
-                  <RichTextEditor
-                    content={content}
-                    onChange={setContent}
-                    placeholder="Write your post content here..."
-                  />
-                </div>
               </CardContent>
             </Card>
 
@@ -526,46 +476,66 @@ const PostEditor = () => {
                 />
                 
                 {coverImage ? (
-                  <div className="relative">
-                    <img 
-                      src={coverImage} 
-                      alt="Cover" 
-                      className="w-full aspect-video object-cover rounded-lg"
+                  <div className="relative aspect-video rounded-lg overflow-hidden">
+                    <img
+                      src={coverImage}
+                      alt="Cover"
+                      className="w-full h-full object-cover"
                     />
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      className="absolute top-2 right-2"
-                      onClick={() => {
-                        setCoverImage(null);
-                        setCoverFile(null);
-                      }}
-                    >
-                      <X className="w-4 h-4" />
-                    </Button>
+                    <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => coverInputRef.current?.click()}
+                      >
+                        <Upload className="w-4 h-4 mr-2" />
+                        Replace
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => {
+                          setCoverImage(null);
+                          setCoverFile(null);
+                        }}
+                      >
+                        <X className="w-4 h-4 mr-2" />
+                        Remove
+                      </Button>
+                    </div>
                   </div>
                 ) : (
                   <button
-                    type="button"
                     onClick={() => coverInputRef.current?.click()}
-                    className="w-full aspect-video border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center gap-2 hover:border-primary/50 transition-colors"
+                    className="w-full aspect-video border-2 border-dashed border-muted-foreground/25 rounded-lg flex flex-col items-center justify-center gap-2 hover:border-primary/50 transition-colors"
                   >
-                    <Upload className="w-8 h-8 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">Upload cover image</span>
+                    <ImageIcon className="w-10 h-10 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">
+                      Click to upload cover image
+                    </span>
                   </button>
                 )}
               </CardContent>
             </Card>
 
-            {/* Gallery Images */}
+            {/* Content */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  Gallery Images
-                  <span className="text-sm font-normal text-muted-foreground">
-                    (drag to reorder)
-                  </span>
-                </CardTitle>
+                <CardTitle>Content *</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <RichTextEditor
+                  content={content}
+                  onChange={setContent}
+                  placeholder="Write your post content here..."
+                />
+              </CardContent>
+            </Card>
+
+            {/* Gallery */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Gallery Images</CardTitle>
               </CardHeader>
               <CardContent>
                 <input
@@ -576,75 +546,72 @@ const PostEditor = () => {
                   onChange={handleGalleryUpload}
                   className="hidden"
                 />
-                
-                <div 
-                  className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4"
-                  onDragOver={(e) => e.preventDefault()}
+
+                {galleryImages.length > 0 && (
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
+                    {galleryImages.map((img, index) => (
+                      <div
+                        key={index}
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, index)}
+                        onDragOver={(e) => handleDragOver(e, index)}
+                        onDragLeave={handleDragLeave}
+                        onDrop={(e) => handleDrop(e, index)}
+                        onDragEnd={handleDragEnd}
+                        className={`relative group aspect-square rounded-lg overflow-hidden cursor-move transition-all ${
+                          draggedIndex === index ? 'opacity-50 scale-95' : ''
+                        } ${
+                          dragOverIndex === index ? 'ring-2 ring-primary ring-offset-2' : ''
+                        }`}
+                      >
+                        <img
+                          src={img.image_url}
+                          alt={img.caption || `Gallery image ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <Button
+                            variant="destructive"
+                            size="icon"
+                            onClick={() => removeGalleryImage(index)}
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                        </div>
+                        <div className="absolute top-2 left-2 bg-black/50 rounded p-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <GripVertical className="w-4 h-4 text-white" />
+                        </div>
+                        <div className="absolute bottom-0 left-0 right-0 p-2 bg-black/50">
+                          <Input
+                            value={img.caption}
+                            onChange={(e) => {
+                              const newImages = [...galleryImages];
+                              newImages[index].caption = e.target.value;
+                              setGalleryImages(newImages);
+                            }}
+                            placeholder="Caption"
+                            className="h-8 text-xs bg-transparent border-white/30 text-white placeholder:text-white/50"
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <div
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'copy';
+                  }}
                   onDrop={handleDropZone}
                 >
-                  {galleryImages.map((img, index) => (
-                    <div 
-                      key={img.id || `new-${index}`} 
-                      draggable
-                      onDragStart={(e) => handleDragStart(e, index)}
-                      onDragOver={(e) => handleDragOver(e, index)}
-                      onDragLeave={handleDragLeave}
-                      onDrop={(e) => handleDrop(e, index)}
-                      onDragEnd={handleDragEnd}
-                      className={`relative group cursor-move transition-all duration-200 ${
-                        draggedIndex === index ? 'opacity-50 scale-95' : ''
-                      } ${
-                        dragOverIndex === index ? 'ring-2 ring-primary ring-offset-2' : ''
-                      }`}
-                    >
-                      <div className="absolute top-2 left-2 z-10 bg-background/80 backdrop-blur-sm rounded p-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <GripVertical className="w-4 h-4 text-muted-foreground" />
-                      </div>
-                      <img 
-                        src={img.image_url} 
-                        alt={`Gallery ${index + 1}`}
-                        className="w-full aspect-square object-cover rounded-lg pointer-events-none"
-                      />
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={() => removeGalleryImage(index)}
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
-                      <Input
-                        placeholder="Caption"
-                        value={img.caption}
-                        onChange={(e) => {
-                          const updated = [...galleryImages];
-                          updated[index].caption = e.target.value;
-                          setGalleryImages(updated);
-                        }}
-                        className="mt-2"
-                      />
-                    </div>
-                  ))}
-                  
                   <button
-                    type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    onDragOver={(e) => {
-                      e.preventDefault();
-                      e.currentTarget.classList.add('border-primary', 'bg-primary/5');
-                    }}
-                    onDragLeave={(e) => {
-                      e.currentTarget.classList.remove('border-primary', 'bg-primary/5');
-                    }}
-                    onDrop={(e) => {
-                      e.currentTarget.classList.remove('border-primary', 'bg-primary/5');
-                      handleDropZone(e);
-                    }}
-                    className="aspect-square border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center gap-2 hover:border-primary/50 transition-colors"
+                    className="w-full py-8 border-2 border-dashed border-muted-foreground/25 rounded-lg flex flex-col items-center justify-center gap-2 hover:border-primary/50 transition-colors"
                   >
-                    <ImageIcon className="w-8 h-8 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground text-center px-2">
-                      Click or drop images here
+                    <Upload className="w-8 h-8 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">
+                      Click to upload or drag & drop images
                     </span>
                   </button>
                 </div>

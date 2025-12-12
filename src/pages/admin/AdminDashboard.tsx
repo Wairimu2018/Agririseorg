@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,7 +12,8 @@ import {
   Trash2, 
   Eye, 
   EyeOff,
-  Lock
+  LogOut,
+  Loader2
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -26,8 +27,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { useAdminAuth } from '@/hooks/useAdminAuth';
+import AccessRequestsManager from '@/components/admin/AccessRequestsManager';
 
 interface Post {
   id: string;
@@ -39,44 +40,33 @@ interface Post {
   created_at: string;
 }
 
-const ADMIN_PASSWORD = 'agririse2024'; // Simple password protection
-
 const AdminDashboard = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletePostId, setDeletePostId] = useState<string | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [password, setPassword] = useState('');
-  const [passwordError, setPasswordError] = useState('');
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const { user, isAdmin, loading: authLoading, signOut } = useAdminAuth();
 
   useEffect(() => {
-    // Check if already authenticated in session
-    const authStatus = sessionStorage.getItem('admin_authenticated');
-    if (authStatus === 'true') {
-      setIsAuthenticated(true);
+    if (!authLoading) {
+      if (!user) {
+        navigate('/admin/login');
+      } else if (!isAdmin) {
+        toast({
+          title: 'Access denied',
+          description: 'You do not have admin privileges.',
+          variant: 'destructive'
+        });
+        supabase.auth.signOut();
+        navigate('/admin/login');
+      } else {
+        fetchPosts();
+      }
     }
-  }, []);
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      fetchPosts();
-    }
-  }, [isAuthenticated]);
-
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (password === ADMIN_PASSWORD) {
-      setIsAuthenticated(true);
-      sessionStorage.setItem('admin_authenticated', 'true');
-      setPasswordError('');
-    } else {
-      setPasswordError('Incorrect password');
-    }
-  };
+  }, [authLoading, user, isAdmin, navigate]);
 
   const fetchPosts = async () => {
-    // Use service role to fetch all posts including unpublished
     const { data, error } = await supabase
       .from('posts')
       .select('id, title, slug, category, is_published, published_at, created_at')
@@ -152,39 +142,16 @@ const AdminDashboard = () => {
     });
   };
 
-  if (!isAuthenticated) {
+  const handleSignOut = async () => {
+    await signOut();
+  };
+
+  if (authLoading || (!user && !authLoading)) {
     return (
       <div className="min-h-screen bg-background flex flex-col">
         <Navigation />
-        <div className="flex-1 flex items-center justify-center py-20">
-          <Card className="w-full max-w-md mx-4">
-            <CardHeader className="text-center">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Lock className="w-8 h-8 text-primary" />
-              </div>
-              <CardTitle className="text-2xl">Admin Access</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleLogin} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter admin password"
-                  />
-                  {passwordError && (
-                    <p className="text-sm text-destructive">{passwordError}</p>
-                  )}
-                </div>
-                <Button type="submit" className="w-full">
-                  Access Dashboard
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
+        <div className="flex-1 flex items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </div>
         <Footer />
       </div>
@@ -201,15 +168,26 @@ const AdminDashboard = () => {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
             <div>
               <h1 className="text-3xl font-bold text-foreground">Admin Dashboard</h1>
-              <p className="text-muted-foreground">Manage your updates and projects</p>
+              <p className="text-muted-foreground">
+                Logged in as {user?.email}
+              </p>
             </div>
-            <Link to="/admin/posts/new">
-              <Button>
-                <Plus className="w-4 h-4 mr-2" />
-                New Post
+            <div className="flex gap-2">
+              <Link to="/admin/posts/new">
+                <Button>
+                  <Plus className="w-4 h-4 mr-2" />
+                  New Post
+                </Button>
+              </Link>
+              <Button variant="outline" onClick={handleSignOut}>
+                <LogOut className="w-4 h-4 mr-2" />
+                Sign Out
               </Button>
-            </Link>
+            </div>
           </div>
+
+          {/* Access Requests */}
+          <AccessRequestsManager />
 
           {/* Stats */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
