@@ -73,7 +73,7 @@ const Footer = () => {
                 <Mail className="w-5 h-5 text-primary-foreground mt-0.5 flex-shrink-0" />
                 <div>
                   <a href="mailto:info@agririse.org" className="text-background/70 hover:text-background transition-colors text-sm">
-                    info@agririse.org
+                    info@agririse.co.ke
                   </a>
                 </div>
               </li>
