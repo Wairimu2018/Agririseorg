@@ -4,7 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HashRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
-import About from "./pages/About";
+// import About from "./pages/About";
 import Solutions from "./pages/Solutions";
 import Products from "./pages/Products";
 import Contact from "./pages/Contact";
@@ -21,6 +21,9 @@ import AdminLogin from "./pages/admin/AdminLogin";
 import AdminSignup from "./pages/admin/AdminSignup";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import PostEditor from "./pages/admin/PostEditor";
+import SmartDairy from "./pages/SmartDairy";
+import SmartPoultry from "./pages/SmartPoultry";
+import SolarAgriTech from "./pages/SolarAgritech";
 
 const queryClient = new QueryClient();
 
@@ -32,7 +35,7 @@ const App = () => (
       <HashRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/about" element={<About />} />
+          {/* <Route path="/about" element={<About />} /> */}
           <Route path="/solutions" element={<Solutions />} />
           <Route path="/products" element={<Products />} />
           <Route path="/contact" element={<Contact />} />
@@ -49,6 +52,9 @@ const App = () => (
           <Route path="/solutions/ai-data-analytics" element={<AIDataAnalytics />} />
           <Route path="/solutions/sustainable-agtech" element={<SustainableAgTech />} />
           <Route path="*" element={<NotFound />} />
+          <Route path="/solutions/smart-dairy" element={<SmartDairy />} />
+          <Route path="/solutions/smart-poultry" element={<SmartPoultry />} />
+          <Route path="/solutions/solar-agri-tech" element={<SolarAgriTech />} />
         </Routes>
       </HashRouter>
     </TooltipProvider>
