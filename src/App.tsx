@@ -65,29 +65,32 @@ const App = () => {
             <Route path="/admin/signup" element={<AdminSignup />} />
 
             <Route
-              path="/admin"
-              element={
-                <ProtectedRoute isAdmin={user.isAdmin}>
-                  <AdminDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/posts/:id"
-              element={
-                <ProtectedRoute isAdmin={user.isAdmin}>
-                  <PostEditor />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/access-requests"
-              element={
-                <ProtectedRoute isAdmin={user.isAdmin}>
-                  <AccessRequestsManager />
-                </ProtectedRoute>
-              }
-            />
+  path="/admin"
+  element={
+    <ProtectedRoute>
+      <AdminDashboard />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/admin/posts"
+  element={
+    <ProtectedRoute>
+      <PostEditor />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/admin/access-requests"
+  element={
+    <ProtectedRoute>
+      <AccessRequestsManager />
+    </ProtectedRoute>
+  }
+/>
+
           </Routes>
         </HashRouter>
       </TooltipProvider>

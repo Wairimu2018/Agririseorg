@@ -1,12 +1,13 @@
 import { Navigate } from "react-router-dom";
 
-interface ProtectedRouteProps {
-  children: JSX.Element;
-  isAdmin: boolean;
-}
+const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
+  const isAdmin = localStorage.getItem("isAdmin") === "true";
+  const approved = localStorage.getItem("approved") === "true";
 
-const ProtectedRoute = ({ children, isAdmin }: ProtectedRouteProps) => {
-  if (!isAdmin) return <Navigate to="/admin-login" replace />;
+  if (!isAdmin || !approved) {
+    return <Navigate to="/admin/login" replace />;
+  }
+
   return children;
 };
 

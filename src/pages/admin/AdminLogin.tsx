@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
@@ -6,124 +6,41 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Lock, Loader2 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { Lock } from 'lucide-react';
 
 const AdminLogin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [checkingAuth, setCheckingAuth] = useState(true);
-  const { toast } = useToast();
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // Check if user is already logged in and is admin
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (session?.user) {
-        const { data: roleData } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', session.user.id)
-          .eq('role', 'admin')
-          .maybeSingle();
-
-        if (roleData) {
-          navigate('/admin');
-          return;
-        }
-      }
-      setCheckingAuth(false);
-    };
-
-    checkAuth();
-  }, [navigate]);
-
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!email || !password) {
-      toast({
-        title: 'Missing credentials',
-        description: 'Please enter your email and password.',
-        variant: 'destructive'
-      });
-      return;
-    }
-
     setLoading(true);
+    setError('');
 
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
+    /**
+     * TEMPORARY ADMIN CHECK
+     * (Until backend API is wired)
+     */
+    if (email === 'info@agririse.co.ke') {
+      localStorage.setItem('isAdmin', 'true');
+      localStorage.setItem('approved', 'true');
+      localStorage.setItem('email', email);
 
-      if (error) {
-        toast({
-          title: 'Login failed',
-          description: error.message,
-          variant: 'destructive'
-        });
-        setLoading(false);
-        return;
-      }
-
-      if (data.user) {
-        // Check if user has admin role
-        const { data: roleData, error: roleError } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', data.user.id)
-          .eq('role', 'admin')
-          .maybeSingle();
-
-        if (roleError || !roleData) {
-          await supabase.auth.signOut();
-          toast({
-            title: 'Access denied',
-            description: 'You do not have admin privileges.',
-            variant: 'destructive'
-          });
-          setLoading(false);
-          return;
-        }
-
-        toast({
-          title: 'Welcome back!',
-          description: 'You have been logged in successfully.'
-        });
-        navigate('/admin');
-      }
-    } catch (error: any) {
-      toast({
-        title: 'Login error',
-        description: error.message,
-        variant: 'destructive'
-      });
-    } finally {
-      setLoading(false);
+      navigate('/admin');
+    } else {
+      setError('You do not have admin privileges.');
     }
-  };
 
-  if (checkingAuth) {
-    return (
-      <div className="min-h-screen bg-background flex flex-col">
-        <Navigation />
-        <div className="flex-1 flex items-center justify-center">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
-        </div>
-        <Footer />
-      </div>
-    );
-  }
+    setLoading(false);
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Navigation />
+
       <div className="flex-1 flex items-center justify-center py-20">
         <Card className="w-full max-w-md mx-4">
           <CardHeader className="text-center">
@@ -135,50 +52,49 @@ const AdminLogin = () => {
               Sign in to access the admin dashboard
             </CardDescription>
           </CardHeader>
+
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
+              {error && (
+                <p className="text-sm text-red-600 text-center">{error}</p>
+              )}
+
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label>Email</Label>
                 <Input
-                  id="email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@example.com"
+                  placeholder="admin@agririse.co.ke"
                   disabled={loading}
+                  required
                 />
               </div>
+
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label>Password</Label>
                 <Input
-                  id="password"
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
+                  placeholder="••••••••"
                   disabled={loading}
+                  required
                 />
               </div>
+
               <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Signing in...
-                  </>
-                ) : (
-                  'Sign In'
-                )}
+                {loading ? 'Signing in…' : 'Sign In'}
               </Button>
+
               <p className="text-center text-sm text-muted-foreground">
-                Need admin access?{' '}
-                <Link to="/admin/signup" className="text-primary hover:underline">
-                  Request access
-                </Link>
+                <Link to="/">Back to website</Link>
               </p>
             </form>
           </CardContent>
         </Card>
       </div>
+
       <Footer />
     </div>
   );
