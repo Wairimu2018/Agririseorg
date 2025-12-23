@@ -48,10 +48,13 @@ const Footer = () => {
             <h3 className="font-semibold text-lg mb-4">Solutions</h3>
             <ul className="space-y-3">
               {[
-                { name: 'Solar Smart Irrigation', path: '/solutions/solar-smart-irrigation' },
-                { name: 'Precision Farming', path: '/solutions/precision-farming' },
-                { name: 'Farm Management', path: '/solutions/farm-management' },
-                { name: 'AI & Data Analytics', path: '/solutions/ai-data-analytics' },
+                { name: 'Smart Dairy', path: '/solutions/smart-dairy' },
+                { name: 'Smart Poultry', path: '/solutions/smart-poultry' },
+                { name: 'Youth In Agri', path: '/solutions/youth-in-agri' },
+                { name: 'Market Linkage', path: '/solutions/market-linkage' },
+                // { name: 'Solar Agritech', path: '/solutions/solar-agritech' },
+                { name: 'Credit Financing', path: '/solutions/credit-financing' },
+                { name: 'Farm Intelligence', path: '/solutions/farm-intelligence' },
               ].map((link) => (
                 <li key={link.name}>
                   <Link 

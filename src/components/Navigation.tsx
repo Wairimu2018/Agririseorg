@@ -141,6 +141,12 @@ const navLinks = [
       { name: "Smart Dairy", href: "/solutions/smart-dairy" },
       { name: "Smart Poultry", href: "/solutions/smart-poultry" },
       { name: "Solar Agri-Tech", href: "/solutions/solar-agri-tech" },
+      { name: "Youth in Agri", href: "/solutions/youth-in-agri" },
+      { name: "Market Linkage", href: "/solutions/market-linkage" },
+      { name: "Farm Intelligence", href: "/solutions/farm-intelligence" },
+      { name: "Credit Financing", href: "/solutions/credit-financing" },
+      { name: "Hydroponics Fodder", href: "/solutions/hydroponics-fodder" },
+      { name: "Animal Nutrition", href: "/solutions/animal-nutrition" },
       // { name: 'Products', path: '/products' },
       // { name: 'Updates', path: '/updates' },
     ]

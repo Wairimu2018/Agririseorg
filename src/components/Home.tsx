@@ -150,6 +150,9 @@ import {
   Users,
   TrendingUp,
   Zap,
+  Wallet,
+  Droplets,
+  Pill,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -226,7 +229,7 @@ const valueChainSolutions: ValueChainSolution[] = [
     solution:
       "Training, financing, and ecosystem support for young agripreneurs",
     impact: "2,500+ youth trained",
-    link: null,
+    link: "/solutions/youth-in-agri",
     features: [
       "Practical skills bootcamps",
       "Startup incubation support",
@@ -242,7 +245,7 @@ const valueChainSolutions: ValueChainSolution[] = [
     solution:
       "Direct-to-buyer platform with quality assurance and logistics",
     impact: "35% higher farm-gate prices",
-    link: null,
+    link: "/solutions/market-linkage",
     features: [
       "Real-time price discovery",
       "Quality grading & certification",
@@ -258,11 +261,53 @@ const valueChainSolutions: ValueChainSolution[] = [
     solution:
       "AI analytics for smarter, data-backed farming decisions",
     impact: "25% input cost savings",
-    link: null,
+    link: "/solutions/farm-intelligence",
     features: [
       "Satellite crop monitoring",
       "Weather risk advisories",
       "Yield prediction models",
+    ],
+  },
+  {
+    icon: Wallet,
+    tag: "Credit Financing",
+    title: "Value Chain Finance",
+    problem: "No collateral, high interest rates, slow approvals",
+    solution: "Affordable credit using production contracts as security",
+    impact: "12% interest rate",
+    link: "/solutions/credit-financing",
+    features: [
+      "No land collateral required",
+      "Fast 3-day approvals",
+      "Flexible repayment terms",
+    ],
+  },
+    {
+    icon: Droplets,
+    tag: "Hydroponics Fodder",
+    title: "Green Fodder Solutions",
+    problem: "Seasonal fodder shortage, high costs, inconsistent quality",
+    solution: "Year-round hydroponics fodder as service or DIY systems",
+    impact: "40% milk yield increase",
+    link: "/solutions/hydroponics-fodder",
+    features: [
+      "365-day fresh fodder availability",
+      "Doorstep delivery subscriptions",
+      "On-farm hydroponic kits",
+    ],
+  },
+     {
+    icon: Pill,
+    tag: "Animal Nutrition",
+    title: "Nutrition & Healthcare",
+    problem: "Poor livestock health, limited access to quality inputs",
+    solution: "Premium supplements, medicines, and nutrition products",
+    impact: "Quality-assured products",
+    link: "/solutions/animal-nutrition",
+    features: [
+      "Poultry & dairy supplements",
+      "Veterinary medicines",
+      "Expert consultation support",
     ],
   },
 ];
@@ -368,13 +413,15 @@ const Solutions: React.FC = () => {
                     </Button>
                   </Link>
                 ) : (
+                  <Link to={solution.link}>
                   <Button
-                    variant="ghost"
-                    className="p-0 h-auto text-primary"
-                    disabled
-                  >
-                    Coming soon
-                  </Button>
+                  variant="ghost"
+                  className="p-0 h-auto text-primary group/btn"
+                >
+                  Explore solution
+                  <ArrowRight className="w-4 h-4 ml-1 transition-transform group-hover/btn:translate-x-1" />
+                </Button>
+                </Link>
                 )}
               </div>
             );
@@ -388,14 +435,14 @@ const Solutions: React.FC = () => {
             together to create compounding impact across your value chain.
           </p>
 
-          <Button
+          {/* <Button
             size="lg"
             className="bg-gradient-to-r from-primary to-primary-light shadow-lg"
             onClick={() => navigate("/solutions")}
           >
             Explore All Solutions
             <ArrowRight className="ml-2 w-5 h-5" />
-          </Button>
+          </Button> */}
         </div>
       </div>
     </section>

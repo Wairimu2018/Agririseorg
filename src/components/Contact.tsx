@@ -99,7 +99,7 @@ const Contact = () => {
       title: "Visit Us",
       content: "Buffallo Mall",
       subtitle: "Naivasha, Kenya"
-    }
+    },
   ];
 
   return (
