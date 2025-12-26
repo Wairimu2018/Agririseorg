@@ -1,101 +1,82 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import Navigation from '@/components/Navigation';
-import Footer from '@/components/Footer';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Lock } from 'lucide-react';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/lib/supabaseClient";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
 
 const AdminLogin = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { toast } = useToast();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
 
-    /**
-     * TEMPORARY ADMIN CHECK
-     * (Until backend API is wired)
-     */
-    if (email === 'info@agririse.co.ke') {
-      localStorage.setItem('isAdmin', 'true');
-      localStorage.setItem('approved', 'true');
-      localStorage.setItem('email', email);
-
-      navigate('/admin');
-    } else {
-      setError('You do not have admin privileges.');
-    }
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
     setLoading(false);
+
+    if (error) {
+      toast({
+        title: "Login Failed",
+        description: error.message,
+        variant: "error",
+      });
+      return;
+    }
+
+    if (data.user) {
+      toast({
+        title: "Login Successful",
+        description: `Welcome, ${data.user.email}`,
+        variant: "success",
+      });
+
+      navigate("/admin");
+    }
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <Navigation />
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="w-full max-w-md p-8 bg-white rounded-lg shadow">
+        <h2 className="text-2xl font-bold mb-6 text-center">Admin Login</h2>
 
-      <div className="flex-1 flex items-center justify-center py-20">
-        <Card className="w-full max-w-md mx-4">
-          <CardHeader className="text-center">
-            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Lock className="w-8 h-8 text-primary" />
-            </div>
-            <CardTitle className="text-2xl">Admin Login</CardTitle>
-            <CardDescription>
-              Sign in to access the admin dashboard
-            </CardDescription>
-          </CardHeader>
+        <form onSubmit={handleLogin} className="space-y-4">
+          <div>
+            <label className="block mb-1 font-medium">Email</label>
+            <Input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              placeholder="you@example.com"
+            />
+          </div>
 
-          <CardContent>
-            <form onSubmit={handleLogin} className="space-y-4">
-              {error && (
-                <p className="text-sm text-red-600 text-center">{error}</p>
-              )}
+          <div>
+            <label className="block mb-1 font-medium">Password</label>
+            <Input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              placeholder="********"
+            />
+          </div>
 
-              <div className="space-y-2">
-                <Label>Email</Label>
-                <Input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@agririse.co.ke"
-                  disabled={loading}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Password</Label>
-                <Input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  disabled={loading}
-                  required
-                />
-              </div>
-
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? 'Signing in…' : 'Sign In'}
-              </Button>
-
-              <p className="text-center text-sm text-muted-foreground">
-                <Link to="/">Back to website</Link>
-              </p>
-            </form>
-          </CardContent>
-        </Card>
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? "Logging in..." : "Login"}
+          </Button>
+        </form>
       </div>
-
-      <Footer />
     </div>
   );
 };

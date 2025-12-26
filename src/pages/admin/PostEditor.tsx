@@ -1,29 +1,23 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { supabase, Post } from "@/lib/supabaseClient";
-import RichTextEditor from "@/components/RichTextEditor";
+import { supabase } from "@/lib/supabaseClient";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/hooks/use-toast";
-import { v4 as uuidv4 } from "uuid";
+import { useToast } from "@/hooks/use-toast";
 
 const PostEditor = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const { toast } = useToast();
 
-  const [post, setPost] = useState<Partial<Post>>({
-    title: "",
-    slug: "",
-    content: "",
-    is_published: false,
-  });
-  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [coverImage, setCoverImage] = useState<File | null>(null);
+  const [isPublished, setIsPublished] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Load post if editing
   useEffect(() => {
     if (!id) return;
 
-    setLoading(true);
     supabase
       .from("posts")
       .select("*")
@@ -31,144 +25,119 @@ const PostEditor = () => {
       .single()
       .then(({ data, error }) => {
         if (error) {
-          toast({ title: "Error", description: error.message });
-        } else {
-          setPost(data);
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: error.message,
+          });
+          return;
         }
-        setLoading(false);
+
+        if (data) {
+          setTitle(data.title);
+          setContent(data.content);
+          setIsPublished(data.is_published);
+        }
       });
-  }, [id]);
-
-  // Handle title change
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPost((prev) => ({ ...prev, title: e.target.value }));
-  };
-
-  // Handle content change
-  const handleContentChange = (content: string) => {
-    setPost((prev) => ({ ...prev, content }));
-  };
-
-  // Handle cover image
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setCoverFile(e.target.files[0]);
-    }
-  };
-
-  const uploadCoverImage = async (): Promise<string | undefined> => {
-    if (!coverFile) return post.cover_image; // use existing if editing
-
-    const fileName = `${uuidv4()}-${coverFile.name}`;
-    const { error: uploadError } = await supabase.storage
-      .from("post-covers")
-      .upload(fileName, coverFile, { upsert: true });
-
-    if (uploadError) {
-      toast({ title: "Upload Error", description: uploadError.message });
-      return;
-    }
-
-    const { data } = supabase.storage.from("post-covers").getPublicUrl(fileName);
-    return data?.publicUrl;
-  };
+  }, [id, toast]);
 
   const handleSave = async () => {
-    if (!post.title || !post.content) {
-      toast({ title: "Error", description: "Title and content are required." });
+    if (!title || !content) {
+      toast({
+        variant: "destructive",
+        title: "Missing fields",
+        description: "Title and content are required",
+      });
       return;
     }
 
     setLoading(true);
 
-    try {
-      const cover_image_url = await uploadCoverImage();
+    let coverUrl: string | undefined;
 
-      const postData: Partial<Post> = {
-        title: post.title,
-        slug: post.slug || post.title.toLowerCase().replace(/\s+/g, "-"),
-        content: post.content,
-        cover_image: cover_image_url,
-        is_published: post.is_published ?? false,
-      };
+    if (coverImage) {
+      const ext = coverImage.name.split(".").pop();
+      const path = `${crypto.randomUUID()}.${ext}`;
 
-      if (id) {
-        // Update existing post
-        const { error } = await supabase.from("posts").update(postData).eq("id", id);
-        if (error) throw error;
-        toast({ title: "Success", description: "Post updated successfully." });
-      } else {
-        // Create new post
-        const { error } = await supabase.from("posts").insert(postData);
-        if (error) throw error;
-        toast({ title: "Success", description: "Post created successfully." });
-        setPost({ title: "", content: "", is_published: false });
-        setCoverFile(null);
+      const { error: uploadError } = await supabase.storage
+        .from("posts")
+        .upload(path, coverImage);
+
+      if (uploadError) {
+        setLoading(false);
+        toast({
+          variant: "destructive",
+          title: "Upload failed",
+          description: uploadError.message,
+        });
+        return;
       }
-    } catch (error: any) {
-      toast({ title: "Error", description: error.message });
-    } finally {
-      setLoading(false);
+
+      const { data } = supabase.storage.from("posts").getPublicUrl(path);
+      coverUrl = data.publicUrl;
     }
-  };
 
-  const handleDelete = async () => {
-    if (!id) return;
-    if (!confirm("Are you sure you want to delete this post?")) return;
+    const payload = {
+      title,
+      content,
+      slug: title.toLowerCase().replace(/\s+/g, "-"),
+      is_published: isPublished,
+      cover_image: coverUrl,
+    };
 
-    setLoading(true);
-    const { error } = await supabase.from("posts").delete().eq("id", id);
+    const { error } = id
+      ? await supabase.from("posts").update(payload).eq("id", id)
+      : await supabase.from("posts").insert(payload);
+
+    setLoading(false);
 
     if (error) {
-      toast({ title: "Error", description: error.message });
-    } else {
-      toast({ title: "Deleted", description: "Post deleted successfully." });
-      navigate("/admin");
+      toast({
+        variant: "destructive",
+        title: "Save failed",
+        description: error.message,
+      });
+      return;
     }
-    setLoading(false);
+
+    toast({ title: "Post saved" });
+    navigate("/admin");
   };
 
   return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">{id ? "Edit Post" : "New Post"}</h1>
+    <div className="container mx-auto py-12 space-y-4">
+      <input
+        className="border p-2 w-full"
+        placeholder="Post title"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+      />
 
-      <div className="mb-4">
-        <label className="block mb-1 font-semibold">Title</label>
+      <textarea
+        className="border p-2 w-full h-64"
+        placeholder="Post content"
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
+      />
+
+      <input
+        type="file"
+        accept="image/*"
+        onChange={(e) => setCoverImage(e.target.files?.[0] ?? null)}
+      />
+
+      <label className="flex gap-2 items-center">
         <input
-          type="text"
-          value={post.title || ""}
-          onChange={handleTitleChange}
-          className="w-full border rounded px-3 py-2"
+          type="checkbox"
+          checked={isPublished}
+          onChange={(e) => setIsPublished(e.target.checked)}
         />
-      </div>
+        Published
+      </label>
 
-      <div className="mb-4">
-        <label className="block mb-1 font-semibold">Content</label>
-        <RichTextEditor content={post.content || ""} onChange={handleContentChange} />
-      </div>
-
-      <div className="mb-4">
-        <label className="block mb-1 font-semibold">Cover Image</label>
-        <input type="file" accept="image/*" onChange={handleFileChange} />
-        {post.cover_image && !coverFile && (
-          <img src={post.cover_image} alt="Cover" className="mt-2 max-h-40" />
-        )}
-        {coverFile && (
-          <img src={URL.createObjectURL(coverFile)} alt="Preview" className="mt-2 max-h-40" />
-        )}
-      </div>
-
-      <div className="flex gap-2">
-        <Button onClick={handleSave} disabled={loading}>
-          {loading ? "Saving..." : "Save"}
-        </Button>
-
-        {id && (
-          <Button onClick={handleDelete} variant="destructive" disabled={loading}>
-            {loading ? "Deleting..." : "Delete"}
-          </Button>
-        )}
-      </div>
+      <Button disabled={loading} onClick={handleSave}>
+        {loading ? "Saving..." : "Save Post"}
+      </Button>
     </div>
   );
 };

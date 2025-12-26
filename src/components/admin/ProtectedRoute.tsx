@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { Navigate } from "react-router-dom";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 
 interface ProtectedRouteProps {
@@ -6,10 +7,11 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { loading, isAdmin } = useAdminAuth();
+  const { user, loading } = useAdminAuth();
 
   if (loading) return <div className="p-10 text-center">Loading...</div>;
-  if (!isAdmin) return null; // redirect happens in hook
+
+  if (!user) return <Navigate to="/admin/login" replace />;
 
   return <>{children}</>;
 };

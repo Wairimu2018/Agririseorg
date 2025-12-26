@@ -1,20 +1,21 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { supabase } from "@/lib/supabaseClient";
 
 export const useAdminAuth = () => {
+  const [user, setUser] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
-    const admin = localStorage.getItem("isAdmin") === "true";
-    setIsAdmin(admin);
-    setLoading(false);
+    const sessionEmail = localStorage.getItem("email");
+    const isAdmin = localStorage.getItem("isAdmin") === "true";
 
-    if (!admin) {
-      navigate("/admin/login");
+    if (sessionEmail && isAdmin) {
+      setUser(sessionEmail);
+    } else {
+      setUser(null);
     }
-  }, [navigate]);
+    setLoading(false);
+  }, []);
 
-  return { loading, isAdmin };
+  return { user, loading };
 };
