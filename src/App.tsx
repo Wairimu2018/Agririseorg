@@ -62,6 +62,9 @@ const App = () => {
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/posts/new" element={<PostEditor />} />
             <Route path="/admin/posts/:id" element={<PostEditor />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/posts/:id" element={<PostEditor />} />
+
 
 
             {/* Admin Routes */}
