@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { ArrowLeft, Egg, Thermometer, Bell, BarChart3, CheckCircle, ArrowRight } from "lucide-react";
+import { ArrowLeft, Egg, Thermometer, Bell, BarChart3, CheckCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import ClimateSystems from "@/assets/ClimateControl.png";
+import sensors from "@/assets/Sensors.png";
+import Analytics from "@/assets/Analytics-PNG-File.png";
 
 const caseStudies = [
   {
@@ -59,15 +61,15 @@ const SmartPoultry = () => {
   return (
     <main className="min-h-screen bg-background">
       <Navigation />
-      
-      {/* Hero */}
+
+      {/* Hero Section */}
       <section className="pt-32 pb-16 bg-gradient-to-b from-primary/10 to-background">
         <div className="container mx-auto px-6">
           <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8">
             <ArrowLeft className="w-4 h-4" />
             Back to Home
           </Link>
-          
+
           <div className="flex items-center gap-3 mb-6">
             <div className="w-14 h-14 rounded-xl bg-primary/20 flex items-center justify-center">
               <Egg className="w-7 h-7 text-primary" />
@@ -76,49 +78,40 @@ const SmartPoultry = () => {
               Smart Poultry
             </span>
           </div>
-          
+
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-semibold text-foreground mb-6 max-w-4xl">
             Precision poultry management for maximum profitability
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mb-8">
             Reduce mortality by 80%, optimize feed conversion, and access premium markets. Data-driven poultry farming for consistent, predictable results.
           </p>
-          
-          {/* <div className="flex flex-wrap gap-4">
-            <Button variant="heroPrimary" size="lg">
-              Get Started
-              <ArrowRight className="w-4 h-4" />
-            </Button>
-            <Button variant="hero" size="lg">
-              Schedule Demo
-            </Button>
-          </div> */}
         </div>
       </section>
 
-      {/* Features */}
+      {/* Features Section */}
       <section className="py-20">
         <div className="container mx-auto px-6">
-          <h2 className="text-3xl font-serif font-semibold text-foreground mb-12">
-            Complete Poultry Solution
-          </h2>
-          
+          <h2 className="text-3xl font-serif font-semibold text-foreground mb-12">Complete Poultry Solution</h2>
+
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
                 icon: Thermometer,
                 title: "Climate Control Systems",
-                description: "Automated brooding and housing systems maintain optimal temperature, humidity, and ventilation. Reduce heat stress mortality and accelerate growth rates."
+                description: "Automated brooding and housing systems maintain optimal temperature, humidity, and ventilation. Reduce heat stress mortality and accelerate growth rates.",
+                image: ClimateSystems,
               },
               {
                 icon: Bell,
                 title: "Disease Early Warning",
-                description: "IoT sensors monitor bird behavior, feed intake, and environmental conditions. AI algorithms detect disease signs 48-72 hours before visible symptoms."
+                description: "IoT sensors monitor bird behavior, feed intake, and environmental conditions. AI algorithms detect disease signs 48-72 hours before visible symptoms.",
+                image: sensors,
               },
               {
                 icon: BarChart3,
                 title: "Performance Analytics",
-                description: "Real-time dashboards track FCR, daily weight gain, mortality, and profitability. Compare cycles and identify optimization opportunities."
+                description: "Real-time dashboards track FCR, daily weight gain, mortality, and profitability. Compare cycles and identify optimization opportunities.",
+                image: Analytics,
               }
             ].map((feature) => (
               <div key={feature.title} className="bg-card rounded-2xl p-8 border border-border/50">
@@ -127,6 +120,7 @@ const SmartPoultry = () => {
                 </div>
                 <h3 className="text-xl font-serif font-semibold text-foreground mb-3">{feature.title}</h3>
                 <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
+                <img src={feature.image} alt={feature.title} className="mt-4 rounded-lg border border-border/50" />
               </div>
             ))}
           </div>
@@ -137,57 +131,32 @@ const SmartPoultry = () => {
       <section className="py-20 bg-card">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl font-serif font-semibold text-foreground mb-4 text-center">
-              Calculate Your ROI
-            </h2>
+            <h2 className="text-3xl font-serif font-semibold text-foreground mb-4 text-center">Calculate Your ROI</h2>
             <p className="text-muted-foreground text-center mb-12">
               See how Smart Poultry can transform your operation's profitability
             </p>
-            
+
             <div className="grid md:grid-cols-2 gap-12">
               {/* Inputs */}
               <div className="space-y-8">
                 <div>
                   <Label className="text-foreground mb-4 block">Flock Size: {birdCount.toLocaleString()} birds</Label>
-                  <Slider
-                    value={[birdCount]}
-                    onValueChange={(v) => setBirdCount(v[0])}
-                    min={100}
-                    max={5000}
-                    step={100}
-                    className="mt-2"
-                  />
+                  <Slider value={[birdCount]} onValueChange={(v) => setBirdCount(v[0])} min={100} max={5000} step={100} />
                 </div>
-                
                 <div>
                   <Label className="text-foreground mb-4 block">Cycles Per Year: {cyclesPerYear}</Label>
-                  <Slider
-                    value={[cyclesPerYear]}
-                    onValueChange={(v) => setCyclesPerYear(v[0])}
-                    min={3}
-                    max={8}
-                    step={1}
-                    className="mt-2"
-                  />
+                  <Slider value={[cyclesPerYear]} onValueChange={(v) => setCyclesPerYear(v[0])} min={3} max={8} step={1} />
                 </div>
-                
                 <div>
                   <Label className="text-foreground mb-4 block">Current Mortality Rate: {currentMortality}%</Label>
-                  <Slider
-                    value={[currentMortality]}
-                    onValueChange={(v) => setCurrentMortality(v[0])}
-                    min={10}
-                    max={50}
-                    step={5}
-                    className="mt-2"
-                  />
+                  <Slider value={[currentMortality]} onValueChange={(v) => setCurrentMortality(v[0])} min={10} max={50} step={5} />
                 </div>
               </div>
-              
+
               {/* Results */}
               <div className="bg-secondary/50 rounded-2xl p-8 border border-primary/20">
                 <h3 className="text-lg font-semibold text-foreground mb-6">Projected Impact</h3>
-                
+
                 <div className="space-y-4">
                   <div className="flex justify-between items-center py-3 border-b border-border/50">
                     <span className="text-muted-foreground">Mortality Rate</span>
@@ -196,7 +165,7 @@ const SmartPoultry = () => {
                       <span className="text-primary font-semibold">{projectedMortality}%</span>
                     </div>
                   </div>
-                  
+
                   <div className="flex justify-between items-center py-3 border-b border-border/50">
                     <span className="text-muted-foreground">Birds to Market/Cycle</span>
                     <div className="text-right">
@@ -204,7 +173,7 @@ const SmartPoultry = () => {
                       <span className="text-primary font-semibold">{Math.round(projectedSurvival)}</span>
                     </div>
                   </div>
-                  
+
                   <div className="flex justify-between items-center py-3 border-b border-border/50">
                     <span className="text-muted-foreground">Annual Revenue</span>
                     <div className="text-right">
@@ -212,17 +181,11 @@ const SmartPoultry = () => {
                       <span className="text-primary font-semibold">KES {Math.round(projectedAnnualRevenue).toLocaleString()}</span>
                     </div>
                   </div>
-                  
-                  <div className="pt-4">
-                    <div className="text-center">
-                      <p className="text-muted-foreground text-sm mb-2">Additional Annual Income</p>
-                      <p className="text-3xl font-serif font-bold text-primary">
-                        +KES {Math.round(additionalIncome).toLocaleString()}
-                      </p>
-                      <p className="text-sm text-muted-foreground mt-2">
-                        {roi}% ROI in first year
-                      </p>
-                    </div>
+
+                  <div className="pt-4 text-center">
+                    <p className="text-muted-foreground text-sm mb-2">Additional Annual Income</p>
+                    <p className="text-3xl font-serif font-bold text-primary">+KES {Math.round(additionalIncome).toLocaleString()}</p>
+                    <p className="text-sm text-muted-foreground mt-2">{roi}% ROI in first year</p>
                   </div>
                 </div>
               </div>
@@ -234,13 +197,11 @@ const SmartPoultry = () => {
       {/* Case Studies */}
       <section className="py-20">
         <div className="container mx-auto px-6">
-          <h2 className="text-3xl font-serif font-semibold text-foreground mb-4">
-            Success Stories
-          </h2>
+          <h2 className="text-3xl font-serif font-semibold text-foreground mb-4">Success Stories</h2>
           <p className="text-muted-foreground mb-12 max-w-2xl">
             Real results from poultry farmers using Smart Poultry solutions
           </p>
-          
+
           <div className="grid lg:grid-cols-2 gap-8">
             {caseStudies.map((study) => (
               <div key={study.name} className="bg-card rounded-2xl p-8 border border-border/50">
@@ -251,17 +212,17 @@ const SmartPoultry = () => {
                   </div>
                   <CheckCircle className="w-6 h-6 text-primary" />
                 </div>
-                
+
                 <div className="mb-6">
                   <p className="text-sm font-medium text-destructive/80 mb-2">Challenge</p>
                   <p className="text-muted-foreground text-sm">{study.challenge}</p>
                 </div>
-                
+
                 <div className="mb-6">
                   <p className="text-sm font-medium text-primary mb-2">Solution</p>
                   <p className="text-muted-foreground text-sm">{study.solution}</p>
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-4 mb-6">
                   {study.results.map((result) => (
                     <div key={result.metric} className="bg-secondary/50 rounded-lg p-3">
@@ -274,7 +235,7 @@ const SmartPoultry = () => {
                     </div>
                   ))}
                 </div>
-                
+
                 <blockquote className="border-l-2 border-primary pl-4 italic text-muted-foreground text-sm">
                   "{study.testimonial}"
                   <footer className="mt-2 not-italic font-medium text-foreground">— {study.author}</footer>
@@ -282,22 +243,6 @@ const SmartPoultry = () => {
               </div>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="py-20 bg-primary/10">
-        <div className="container mx-auto px-6 text-center">
-          <h2 className="text-3xl font-serif font-semibold text-foreground mb-4">
-            Ready to transform your poultry operation?
-          </h2>
-          <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
-            Join over 3,000 farmers already using Smart Poultry to reduce losses and maximize profits.
-          </p>
-          {/* <Button variant="heroPrimary" size="lg">
-            Get Started Today
-            <ArrowRight className="w-4 h-4" />
-          </Button> */}
         </div>
       </section>
 

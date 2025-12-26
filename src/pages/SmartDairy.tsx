@@ -1,43 +1,84 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
+import {
+  ArrowLeft,
+  Milk,
+  TrendingUp,
+  Thermometer,
+  Users,
+  CheckCircle,
+} from "lucide-react";
+
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { ArrowLeft, Milk, TrendingUp, Thermometer, Users, CheckCircle, ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 
+// ✅ IMAGES
+import milkmarket from "@/assets/milkmarket.png";
+import FeedOptimization from "@/assets/FeedOptimization.png";
+import ColdChain from "@/assets/Cold-Chain-Management.png";
+
+// CASE STUDIES
 const caseStudies = [
   {
-    name: "Kiambu Dairy Cooperative",
-    location: "Kiambu County, Kenya",
-    members: "450 farmers",
-    challenge: "Low milk yields averaging 5L/day, high feed costs, and 30% milk spoilage due to poor cold chain infrastructure.",
-    solution: "Implemented AI-powered feed optimization, IoT milk monitoring, and solar cold storage units across 12 collection points.",
+    name: "Nakuru Dairy Cooperative",
+    location: "Nakuru County, Kenya",
+    members: "120 farmers",
+    challenge:
+      "Inconsistent milk quality, high feed costs, and limited market access leading to low profits.",
+    solution:
+      "Implemented AI feed optimization, cold chain monitoring, and direct market linkages.",
     results: [
-      { metric: "Milk yield", before: "5L/day", after: "14L/day", improvement: "+180%" },
-      { metric: "Feed costs", before: "KES 280/day", after: "KES 195/day", improvement: "-30%" },
-      { metric: "Spoilage rate", before: "30%", after: "4%", improvement: "-87%" },
-      { metric: "Farmer income", before: "KES 12,000/mo", after: "KES 38,000/mo", improvement: "+217%" },
+      { metric: "Milk Yield", before: "8 L/day", after: "18 L/day", improvement: "+125%" },
+      { metric: "Feed Cost", before: "KES 250/day", after: "KES 175/day", improvement: "-30%" },
+      { metric: "Monthly Revenue", before: "KES 28,000", after: "KES 75,000", improvement: "+168%" },
     ],
-    testimonial: "Before AgriRise, we were struggling to make ends meet. Now, my children are in good schools and I've expanded my herd from 3 to 8 cows.",
-    author: "Mary Wanjiku, Dairy Farmer",
+    testimonial:
+      "Our cooperative now produces consistently high-quality milk and sells directly to processors at fair prices. The technology paid for itself within months.",
+    author: "Mary Wanjiku, Cooperative Chairperson",
   },
   {
-    name: "Nyandarua Milk Processors",
-    location: "Nyandarua County, Kenya",
-    members: "1,200 farmers",
-    challenge: "Fragmented supply chain with multiple middlemen, inconsistent milk quality, and limited market access beyond local buyers.",
-    solution: "Deployed direct farmer-to-processor digital platform, quality testing at collection points, and integrated logistics coordination.",
+    name: "Machakos Dairy Farmers",
+    location: "Machakos County, Kenya",
+    members: "85 farmers",
+    challenge:
+      "High post-milking losses due to poor cold storage and lack of market visibility.",
+    solution:
+      "Installed IoT-based cold storage units and digital market platform for price transparency.",
     results: [
-      { metric: "Farm-gate price", before: "KES 28/L", after: "KES 42/L", improvement: "+50%" },
-      { metric: "Quality grade A", before: "45%", after: "89%", improvement: "+98%" },
-      { metric: "Payment time", before: "45 days", after: "7 days", improvement: "-84%" },
-      { metric: "Market reach", before: "Local", after: "3 counties", improvement: "3x" },
+      { metric: "Milk Losses", before: "22%", after: "4%", improvement: "-82%" },
+      { metric: "Monthly Profit", before: "KES 15,000", after: "KES 48,000", improvement: "+220%" },
     ],
-    testimonial: "The direct linkage to processors changed everything. We now get fair prices and weekly payments instead of waiting months.",
-    author: "John Mwangi, Cooperative Chairman",
+    testimonial:
+      "Before, a third of our milk would spoil. Now we can deliver fresh milk to buyers every day and profits have tripled.",
+    author: "Peter Mutua, Dairy Farmer",
+  },
+];
+
+// FEATURES
+const features = [
+  {
+    icon: TrendingUp,
+    title: "AI Feed Optimization",
+    description:
+      "Machine learning algorithms analyze herd data, feed prices, and nutrition requirements to maximize milk yield while reducing costs.",
+    image: FeedOptimization,
+  },
+  {
+    icon: Thermometer,
+    title: "Cold Chain Monitoring",
+    description:
+      "IoT sensors track milk temperature from collection to delivery, preventing spoilage and ensuring quality compliance.",
+    image: ColdChain,
+  },
+  {
+    icon: Users,
+    title: "Market Linkage Platform",
+    description:
+      "Direct digital connections between farmers and processors eliminate middlemen and guarantee fair pricing with fast payments.",
+    image: milkmarket,
   },
 ];
 
@@ -60,246 +101,200 @@ const SmartDairy = () => {
 
   return (
     <main className="min-h-screen bg-background">
-      <Navigation/>
-      
-      {/* Hero */}
+      <Navigation />
+
+      {/* HERO */}
       <section className="pt-32 pb-16 bg-gradient-to-b from-primary/10 to-background">
         <div className="container mx-auto px-6">
-          <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-8"
+          >
             <ArrowLeft className="w-4 h-4" />
             Back to Home
           </Link>
-          
+
           <div className="flex items-center gap-3 mb-6">
             <div className="w-14 h-14 rounded-xl bg-primary/20 flex items-center justify-center">
               <Milk className="w-7 h-7 text-primary" />
             </div>
-            <span className="px-3 py-1 text-xs font-semibold uppercase tracking-wider bg-primary/10 text-primary rounded-full">
+            <span className="px-3 py-1 text-xs font-semibold uppercase bg-primary/10 text-primary rounded-full">
               Smart Dairy
             </span>
           </div>
-          
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-semibold text-foreground mb-6 max-w-4xl">
+
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-semibold mb-6 max-w-4xl">
             Transform your dairy operation with precision technology
           </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mb-8">
-            End-to-end dairy value chain optimization — from feed management to cold chain to market access. Increase yields by 3x while reducing costs.
+
+          <p className="text-xl text-muted-foreground max-w-2xl">
+            End-to-end dairy value chain optimization — from feed management to cold chain and market access.
           </p>
-          
-          {/* <div className="flex flex-wrap gap-4">
-            <Button variant="heroPrimary" size="lg">
-              Get Started
-              <ArrowRight className="w-4 h-4" />
-            </Button>
-            <Button variant="hero" size="lg">
-              Schedule Demo
-            </Button> */}
-          {/* </div> */}
         </div>
       </section>
 
-      {/* Features */}
+      {/* FEATURES WITH IMAGES */}
       <section className="py-20">
         <div className="container mx-auto px-6">
-          <h2 className="text-3xl font-serif font-semibold text-foreground mb-12">
+          <h2 className="text-3xl font-serif font-semibold mb-12">
             Complete Dairy Solution
           </h2>
-          
+
           <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                icon: TrendingUp,
-                title: "AI Feed Optimization",
-                description: "Machine learning algorithms analyze your herd data, local feed prices, and nutritional requirements to create optimal feeding schedules that maximize milk yield while minimizing costs."
-              },
-              {
-                icon: Thermometer,
-                title: "Cold Chain Monitoring",
-                description: "IoT sensors track milk temperature from collection to delivery. Real-time alerts prevent spoilage and ensure quality standards are maintained throughout the supply chain."
-              },
-              {
-                icon: Users,
-                title: "Market Linkage Platform",
-                description: "Direct digital connections between farmers and processors eliminate middlemen, ensure fair pricing, and provide transparent, fast payments within 7 days."
-              }
-            ].map((feature) => (
-              <div key={feature.title} className="bg-card rounded-2xl p-8 border border-border/50">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-6">
-                  <feature.icon className="w-6 h-6 text-primary" />
+            {features.map((feature) => (
+              <div
+                key={feature.title}
+                className="bg-card rounded-2xl overflow-hidden border border-border/50 hover:shadow-lg transition"
+              >
+                <img
+                  src={feature.image}
+                  alt={feature.title}
+                  className="w-full h-40 object-cover"
+                />
+                <div className="p-8">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-6">
+                    <feature.icon className="w-6 h-6 text-primary" />
+                  </div>
+                  <h3 className="text-xl font-serif font-semibold mb-3">
+                    {feature.title}
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    {feature.description}
+                  </p>
                 </div>
-                <h3 className="text-xl font-serif font-semibold text-foreground mb-3">{feature.title}</h3>
-                <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ROI Calculator */}
+      {/* ROI CALCULATOR */}
       <section className="py-20 bg-card">
-        <div className="container mx-auto px-6">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl font-serif font-semibold text-foreground mb-4 text-center">
-              Calculate Your ROI
-            </h2>
-            <p className="text-muted-foreground text-center mb-12">
-              See how Smart Dairy can transform your operation's profitability
-            </p>
-            
-            <div className="grid md:grid-cols-2 gap-12">
-              {/* Inputs */}
-              <div className="space-y-8">
-                <div>
-                  <Label className="text-foreground mb-4 block">Herd Size: {herdSize} cows</Label>
-                  <Slider
-                    value={[herdSize]}
-                    onValueChange={(v) => setHerdSize(v[0])}
-                    min={1}
-                    max={100}
-                    step={1}
-                    className="mt-2"
-                  />
-                </div>
-                
-                <div>
-                  <Label className="text-foreground mb-4 block">Current Yield: {currentYield} L/day per cow</Label>
-                  <Slider
-                    value={[currentYield]}
-                    onValueChange={(v) => setCurrentYield(v[0])}
-                    min={2}
-                    max={20}
-                    step={1}
-                    className="mt-2"
-                  />
-                </div>
-                
-                <div>
-                  <Label className="text-foreground mb-4 block">Daily Feed Cost: KES {feedCost} per cow</Label>
-                  <Slider
-                    value={[feedCost]}
-                    onValueChange={(v) => setFeedCost(v[0])}
-                    min={100}
-                    max={500}
-                    step={10}
-                    className="mt-2"
-                  />
-                </div>
+        <div className="container mx-auto px-6 max-w-4xl">
+          <h2 className="text-3xl font-serif font-semibold mb-4 text-center">
+            Calculate Your ROI
+          </h2>
+
+          <div className="grid md:grid-cols-2 gap-12 mt-12">
+            {/* INPUTS */}
+            <div className="space-y-8">
+              <div>
+                <Label>Herd Size: {herdSize} cows</Label>
+                <Slider
+                  value={[herdSize]}
+                  onValueChange={(v) => setHerdSize(v[0])}
+                  min={1}
+                  max={100}
+                />
               </div>
-              
-              {/* Results */}
-              <div className="bg-secondary/50 rounded-2xl p-8 border border-primary/20">
-                <h3 className="text-lg font-semibold text-foreground mb-6">Projected Impact</h3>
-                
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center py-3 border-b border-border/50">
-                    <span className="text-muted-foreground">Milk Yield</span>
-                    <div className="text-right">
-                      <span className="text-muted-foreground line-through mr-2">{currentYield}L</span>
-                      <span className="text-primary font-semibold">{projectedYield}L/day</span>
-                    </div>
-                  </div>
-                  
-                  <div className="flex justify-between items-center py-3 border-b border-border/50">
-                    <span className="text-muted-foreground">Feed Cost</span>
-                    <div className="text-right">
-                      <span className="text-muted-foreground line-through mr-2">KES {feedCost}</span>
-                      <span className="text-primary font-semibold">KES {projectedFeedCost}/day</span>
-                    </div>
-                  </div>
-                  
-                  <div className="flex justify-between items-center py-3 border-b border-border/50">
-                    <span className="text-muted-foreground">Monthly Profit</span>
-                    <div className="text-right">
-                      <span className="text-muted-foreground line-through mr-2">KES {currentProfit.toLocaleString()}</span>
-                      <span className="text-primary font-semibold">KES {projectedProfit.toLocaleString()}</span>
-                    </div>
-                  </div>
-                  
-                  <div className="pt-4">
-                    <div className="text-center">
-                      <p className="text-muted-foreground text-sm mb-2">Additional Monthly Income</p>
-                      <p className="text-3xl font-serif font-bold text-primary">
-                        +KES {additionalIncome.toLocaleString()}
-                      </p>
-                      <p className="text-sm text-muted-foreground mt-2">
-                        {roi}% ROI in first year
-                      </p>
-                    </div>
-                  </div>
-                </div>
+
+              <div>
+                <Label>Current Yield: {currentYield} L/day</Label>
+                <Slider
+                  value={[currentYield]}
+                  onValueChange={(v) => setCurrentYield(v[0])}
+                  min={2}
+                  max={20}
+                />
               </div>
+
+              <div>
+                <Label>Daily Feed Cost: KES {feedCost}</Label>
+                <Slider
+                  value={[feedCost]}
+                  onValueChange={(v) => setFeedCost(v[0])}
+                  min={100}
+                  max={500}
+                  step={10}
+                />
+              </div>
+            </div>
+
+            {/* RESULTS */}
+            <div className="bg-secondary/50 rounded-2xl p-8 border border-primary/20">
+              <h3 className="font-semibold mb-6">Projected Impact</h3>
+
+              <p className="text-muted-foreground mb-2">Monthly Profit Increase</p>
+              <p className="text-3xl font-serif font-bold text-primary mb-2">
+                +KES {additionalIncome.toLocaleString()}
+              </p>
+              <p className="text-sm text-muted-foreground">{roi}% ROI in first year</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Case Studies */}
+      {/* CASE STUDIES / TESTIMONIALS */}
       <section className="py-20">
         <div className="container mx-auto px-6">
-          <h2 className="text-3xl font-serif font-semibold text-foreground mb-4">
-            Success Stories
-          </h2>
+          <h2 className="text-3xl font-serif font-semibold mb-4">Success Stories</h2>
           <p className="text-muted-foreground mb-12 max-w-2xl">
-            Real results from farmers and cooperatives using Smart Dairy solutions
+            Real results from dairy farmers using Smart Dairy solutions
           </p>
-          
+
           <div className="grid lg:grid-cols-2 gap-8">
             {caseStudies.map((study) => (
-              <div key={study.name} className="bg-card rounded-2xl p-8 border border-border/50">
+              <div
+                key={study.name}
+                className="bg-card rounded-2xl p-8 border border-border/50"
+              >
                 <div className="flex items-start justify-between mb-6">
                   <div>
-                    <h3 className="text-xl font-serif font-semibold text-foreground">{study.name}</h3>
-                    <p className="text-sm text-muted-foreground">{study.location} • {study.members}</p>
+                    <h3 className="text-xl font-serif font-semibold text-foreground">
+                      {study.name}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      {study.location} • {study.members}
+                    </p>
                   </div>
                   <CheckCircle className="w-6 h-6 text-primary" />
                 </div>
-                
+
                 <div className="mb-6">
-                  <p className="text-sm font-medium text-destructive/80 mb-2">Challenge</p>
+                  <p className="text-sm font-medium text-destructive/80 mb-2">
+                    Challenge
+                  </p>
                   <p className="text-muted-foreground text-sm">{study.challenge}</p>
                 </div>
-                
+
                 <div className="mb-6">
                   <p className="text-sm font-medium text-primary mb-2">Solution</p>
                   <p className="text-muted-foreground text-sm">{study.solution}</p>
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-4 mb-6">
                   {study.results.map((result) => (
-                    <div key={result.metric} className="bg-secondary/50 rounded-lg p-3">
-                      <p className="text-xs text-muted-foreground mb-1">{result.metric}</p>
-                      <p className="text-sm">
-                        <span className="text-muted-foreground line-through mr-1">{result.before}</span>
-                        <span className="text-foreground font-medium">{result.after}</span>
+                    <div
+                      key={result.metric}
+                      className="bg-secondary/50 rounded-lg p-3"
+                    >
+                      <p className="text-xs text-muted-foreground mb-1">
+                        {result.metric}
                       </p>
-                      <p className="text-xs text-primary font-semibold">{result.improvement}</p>
+                      <p className="text-sm">
+                        <span className="text-muted-foreground line-through mr-1">
+                          {result.before}
+                        </span>
+                        <span className="text-foreground font-medium">
+                          {result.after}
+                        </span>
+                      </p>
+                      <p className="text-xs text-primary font-semibold">
+                        {result.improvement}
+                      </p>
                     </div>
                   ))}
                 </div>
-                
+
                 <blockquote className="border-l-2 border-primary pl-4 italic text-muted-foreground text-sm">
                   "{study.testimonial}"
-                  <footer className="mt-2 not-italic font-medium text-foreground">— {study.author}</footer>
+                  <footer className="mt-2 not-italic font-medium text-foreground">
+                    — {study.author}
+                  </footer>
                 </blockquote>
               </div>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="py-20 bg-primary/10">
-        <div className="container mx-auto px-6 text-center">
-          <h2 className="text-3xl font-serif font-semibold text-foreground mb-4">
-            Ready to transform your dairy operation?
-          </h2>
-          <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
-            Join over 5,000 farmers already using Smart Dairy to increase yields and boost income.
-          </p>
-          {/* <Button variant="heroPrimary" size="lg">
-            Get Started Today
-            <ArrowRight className="w-4 h-4" />
-          </Button> */}
         </div>
       </section>
 
