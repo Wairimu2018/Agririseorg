@@ -1,14 +1,17 @@
-import { Navigate } from "react-router-dom";
+import { ReactNode } from "react";
+import { useAdminAuth } from "@/hooks/useAdminAuth";
 
-const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
-  const isAdmin = localStorage.getItem("isAdmin") === "true";
-  const approved = localStorage.getItem("approved") === "true";
+interface ProtectedRouteProps {
+  children: ReactNode;
+}
 
-  if (!isAdmin || !approved) {
-    return <Navigate to="/admin/login" replace />;
-  }
+const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
+  const { loading, isAdmin } = useAdminAuth();
 
-  return children;
+  if (loading) return <div className="p-10 text-center">Loading...</div>;
+  if (!isAdmin) return null; // redirect happens in hook
+
+  return <>{children}</>;
 };
 
 export default ProtectedRoute;

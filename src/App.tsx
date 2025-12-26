@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HashRouter, Routes, Route } from "react-router-dom";
 
+// Public pages
 import Index from "./pages/Index";
 import Solutions from "./pages/Solutions";
 import Products from "./pages/Products";
@@ -12,6 +13,7 @@ import Updates from "./pages/Updates";
 import UpdateDetail from "./pages/UpdateDetail";
 import NotFound from "./pages/NotFound";
 
+// Admin pages
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminSignup from "./pages/admin/AdminSignup";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -19,6 +21,7 @@ import PostEditor from "./pages/admin/PostEditor";
 import AccessRequestsManager from "./components/admin/AccessRequestsManager";
 import ProtectedRoute from "./components/admin/ProtectedRoute";
 
+// Solution pages
 import SmartDairy from "./pages/SmartDairy";
 import SmartPoultry from "./pages/SmartPoultry";
 import SolarAgriTech from "./pages/SolarAgritech";
@@ -32,9 +35,6 @@ import AnimalNutrition from "./pages/AnimalNutrition";
 const queryClient = new QueryClient();
 
 const App = () => {
-  // TEMP placeholder for testing — replace with real auth logic later
-  const user = { isAdmin: true };
-
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -49,7 +49,6 @@ const App = () => {
             <Route path="/contact" element={<Contact />} />
             <Route path="/updates" element={<Updates />} />
             <Route path="/updates/:slug" element={<UpdateDetail />} />
-            <Route path="*" element={<NotFound />} />
             <Route path="/solutions/smart-dairy" element={<SmartDairy />} />
             <Route path="/solutions/smart-poultry" element={<SmartPoultry />} />
             <Route path="/solutions/solar-agri-tech" element={<SolarAgriTech />} />
@@ -59,45 +58,53 @@ const App = () => {
             <Route path="/solutions/hydroponics-fodder" element={<HydroponicsFodder />} />
             <Route path="/solutions/animal-nutrition" element={<AnimalNutrition />} />
             <Route path="/solutions/farm-intelligence" element={<FarmIntelligence />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/posts/new" element={<PostEditor />} />
-            <Route path="/admin/posts/:id" element={<PostEditor />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/posts/:id" element={<PostEditor />} />
+            <Route path="*" element={<NotFound />} />
 
-
-
-            {/* Admin Routes */}
+            {/* Admin Public Routes */}
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/signup" element={<AdminSignup />} />
 
+            {/* Admin Protected Routes */}
             <Route
-  path="/admin"
-  element={
-    <ProtectedRoute>
-      <AdminDashboard />
-    </ProtectedRoute>
-  }
-/>
-
-<Route
-  path="/admin/posts"
-  element={
-    <ProtectedRoute>
-      <PostEditor />
-    </ProtectedRoute>
-  }
-/>
-
-<Route
-  path="/admin/access-requests"
-  element={
-    <ProtectedRoute>
-      <AccessRequestsManager />
-    </ProtectedRoute>
-  }
-/>
-
+              path="/admin"
+              element={
+                <ProtectedRoute>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/posts"
+              element={
+                <ProtectedRoute>
+                  <PostEditor />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/posts/new"
+              element={
+                <ProtectedRoute>
+                  <PostEditor />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/posts/:id"
+              element={
+                <ProtectedRoute>
+                  <PostEditor />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/access-requests"
+              element={
+                <ProtectedRoute>
+                  <AccessRequestsManager />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </HashRouter>
       </TooltipProvider>
