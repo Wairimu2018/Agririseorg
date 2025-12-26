@@ -1,85 +1,94 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { supabase } from '@/integrations/supabase/client';
+import { Loader2, Trash2, Edit, Plus } from 'lucide-react';
+import { useAdminAuth } from '@/hooks/use-admin-auth';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Edit, Trash2, Plus } from 'lucide-react';
 
 interface Post {
   id: string;
   title: string;
   slug: string;
-  cover_image?: string;
   is_published: boolean;
-  published_at?: string;
+  cover_image: string | null;
+  created_at: string;
 }
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user, isAdmin, loading: authLoading } = useAdminAuth();
 
   const [loading, setLoading] = useState(true);
   const [posts, setPosts] = useState<Post[]>([]);
-  const [refreshing, setRefreshing] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const isAdmin = localStorage.getItem('isAdmin') === 'true';
-  const email = localStorage.getItem('email');
-
-  useEffect(() => {
-    if (!isAdmin) {
-      navigate('/admin/login');
-    } else {
-      fetchPosts();
-    }
-  }, []);
-
+  // Fetch posts from Supabase
   const fetchPosts = async () => {
     setLoading(true);
     const { data, error } = await supabase
       .from('posts')
       .select('*')
-      .order('published_at', { ascending: false });
+      .order('created_at', { ascending: false });
 
     if (error) {
       toast({
         title: 'Error fetching posts',
         description: error.message,
-        variant: 'destructive',
+        variant: 'destructive'
       });
-    } else if (data) {
-      setPosts(data);
+    } else {
+      setPosts(data as Post[]);
     }
     setLoading(false);
   };
 
-  const handleSignOut = () => {
-    localStorage.clear();
+  useEffect(() => {
+    if (!authLoading) {
+      if (!user || !isAdmin) {
+        navigate('/admin/login');
+      } else {
+        fetchPosts();
+      }
+    }
+  }, [authLoading, user, isAdmin, navigate]);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
     navigate('/admin/login');
   };
 
-  const handleDelete = async (postId: string) => {
+  const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this post?')) return;
+    setDeletingId(id);
 
-    const { error } = await supabase.from('posts').delete().eq('id', postId);
+    const { error } = await supabase
+      .from('posts')
+      .delete()
+      .eq('id', id);
+
     if (error) {
       toast({
-        title: 'Error deleting post',
+        title: 'Delete failed',
         description: error.message,
-        variant: 'destructive',
+        variant: 'destructive'
       });
     } else {
       toast({
         title: 'Post deleted',
-        description: 'The post has been removed successfully.',
+        description: 'The post has been removed successfully.'
       });
-      setPosts(posts.filter((p) => p.id !== postId));
+      setPosts(posts.filter(p => p.id !== id));
     }
+
+    setDeletingId(null);
   };
 
-  if (loading) {
+  if (authLoading || loading) {
     return (
       <div className="min-h-screen flex flex-col">
         <Navigation />
@@ -96,57 +105,79 @@ const AdminDashboard = () => {
       <Navigation />
 
       <div className="flex-1 container mx-auto px-4 py-12">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-          <div className="flex gap-2">
-            <Button onClick={() => navigate('/admin/posts/new')} variant="outline">
-              <Plus className="w-4 h-4 mr-1" /> New Post
-            </Button>
-            <Button onClick={handleSignOut} variant="outline">
-              Sign Out
-            </Button>
-          </div>
-        </div>
+        <Card>
+          <CardHeader className="flex justify-between items-center">
+            <CardTitle>Admin Dashboard</CardTitle>
+            <div className="flex items-center gap-2">
+              <Button onClick={handleSignOut} variant="outline">Sign Out</Button>
+              <Button
+                onClick={() => navigate('/admin/posts/new')}
+                variant="secondary"
+                size="sm"
+              >
+                <Plus className="w-4 h-4 mr-2" /> New Post
+              </Button>
+            </div>
+          </CardHeader>
 
-        {posts.length === 0 ? (
-          <p>No posts found. Click "New Post" to create one.</p>
-        ) : (
-          <div className="grid md:grid-cols-2 gap-6">
-            {posts.map((post) => (
-              <Card key={post.id}>
-                <CardHeader>
-                  <CardTitle>{post.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {post.cover_image && (
-                    <img
-                      src={post.cover_image}
-                      alt={post.title}
-                      className="w-full h-40 object-cover rounded-lg mb-4"
-                    />
-                  )}
-                  <p>Status: {post.is_published ? 'Published' : 'Draft'}</p>
-                  <div className="flex gap-2 mt-4">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => navigate(`/admin/posts/${post.id}`)}
-                    >
-                      <Edit className="w-4 h-4 mr-1" /> Edit
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => handleDelete(post.id)}
-                    >
-                      <Trash2 className="w-4 h-4 mr-1" /> Delete
-                    </Button>
+          <CardContent className="mt-4">
+            {posts.length === 0 ? (
+              <p className="text-muted-foreground">No posts yet.</p>
+            ) : (
+              <div className="grid gap-4">
+                {posts.map(post => (
+                  <div
+                    key={post.id}
+                    className="flex items-center justify-between gap-4 border rounded-lg p-4 hover:shadow"
+                  >
+                    <div className="flex items-center gap-4">
+                      {post.cover_image ? (
+                        <img
+                          src={post.cover_image}
+                          alt={post.title}
+                          className="w-16 h-16 object-cover rounded"
+                        />
+                      ) : (
+                        <div className="w-16 h-16 bg-muted rounded flex items-center justify-center text-sm text-muted-foreground">
+                          No Image
+                        </div>
+                      )}
+                      <div>
+                        <p className="font-semibold">{post.title}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {post.is_published ? 'Published' : 'Draft'} • {new Date(post.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => navigate(`/admin/posts/${post.id}`)}
+                      >
+                        <Edit className="w-4 h-4 mr-1" /> Edit
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        disabled={deletingId === post.id}
+                        onClick={() => handleDelete(post.id)}
+                      >
+                        {deletingId === post.id ? (
+                          <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                        ) : (
+                          <Trash2 className="w-4 h-4 mr-1" />
+                        )}
+                        Delete
+                      </Button>
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       <Footer />
