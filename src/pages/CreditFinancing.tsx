@@ -5,6 +5,10 @@ import { useState } from "react";
 import { Slider } from "@/components/ui/slider";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import dairyCow from "@/assets/dairycow.jpg";
+import poultry from "@/assets/poultry.jpg";
+import equipment from "@/assets/equipments.png";
+import fodder from "@/assets/fodder.jpg";
 
 const caseStudies = [
   {
@@ -46,6 +50,7 @@ const loanProducts = [
     amount: "KES 80,000 - 200,000",
     rate: "12% p.a.",
     term: "24 months",
+    image: dairyCow,
   },
   {
     title: "Poultry Unit Setup",
@@ -53,6 +58,7 @@ const loanProducts = [
     amount: "KES 150,000 - 500,000",
     rate: "14% p.a.",
     term: "18 months",
+    image: poultry,
   },
   {
     title: "Working Capital",
@@ -60,6 +66,7 @@ const loanProducts = [
     amount: "KES 20,000 - 100,000",
     rate: "10% p.a.",
     term: "6 months",
+    image: fodder,
   },
   {
     title: "Equipment Finance",
@@ -67,6 +74,7 @@ const loanProducts = [
     amount: "KES 100,000 - 1,000,000",
     rate: "15% p.a.",
     term: "36 months",
+    image: equipment,
   },
 ];
 
@@ -120,6 +128,51 @@ const CreditFinancing = () => {
           </div> */}
         </div>
       </section>
+      
+      <section className="py-20 bg-secondary/10">
+  <div className="container mx-auto px-6">
+    <h2 className="text-3xl font-serif font-semibold mb-12">
+      Our Credit Products
+    </h2>
+
+    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+      {loanProducts.map((loan) => (
+        <div
+          key={loan.title}
+          className="bg-background rounded-xl overflow-hidden border border-border/30 hover:shadow-lg transition-shadow"
+        >
+          {/* Image */}
+          <div className="h-44 overflow-hidden">
+            <img
+              src={loan.image}
+              alt={loan.title}
+              className="w-full h-full object-cover"
+            />
+          </div>
+
+          {/* Content */}
+          <div className="p-6">
+            <h3 className="text-lg font-semibold mb-2">{loan.title}</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              {loan.description}
+            </p>
+
+            <ul className="text-sm space-y-1 mb-4">
+              <li><strong>Amount:</strong> {loan.amount}</li>
+              <li><strong>Rate:</strong> {loan.rate}</li>
+              <li><strong>Term:</strong> {loan.term}</li>
+            </ul>
+
+            <Button variant="outline" className="w-full">
+              Apply Now
+            </Button>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
 
       {/* Key Benefits */}
       <section className="py-20">
@@ -163,7 +216,7 @@ const CreditFinancing = () => {
         </div>
       </section>
 
-      {/* Loan Products */}
+      {/* Loan Products
       <section className="py-20 bg-secondary/20">
         <div className="container mx-auto px-6">
           <h2 className="text-3xl font-serif font-semibold text-foreground mb-4">
@@ -199,7 +252,7 @@ const CreditFinancing = () => {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Loan Calculator */}
       <section className="py-20">

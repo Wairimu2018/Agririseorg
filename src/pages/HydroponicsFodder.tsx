@@ -2,6 +2,8 @@ import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
+import hydroponicsGreenmatter from "@/assets/hydroponicsgreenmatter.jpeg";
+import hydroponicsSystems from "@/assets/hydroponicssystems.png";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
   Droplets, 
@@ -68,6 +70,7 @@ const packages = [
   {
     name: "Smallholder Package",
     target: "1-10 Animals",
+    // image: hydroponicsGreenmatter,
     features: [
       "10-20 kg daily fodder capacity",
       "Weekly delivery subscription",
@@ -170,7 +173,7 @@ const HydroponicsFodder = () => {
                 Fodder Delivery Service
               </h2>
               <p className="text-lg text-muted-foreground mb-8">
-                Like Shunya, we bring fresh, chemical-free green fodder directly to your farm. 
+                We bring fresh, chemical-free green fodder directly to your farm. 
                 No infrastructure investment, no production hassles – just consistent, 
                 high-quality nutrition for your livestock.
               </p>
