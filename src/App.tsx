@@ -59,6 +59,10 @@ const App = () => {
             <Route path="/solutions/hydroponics-fodder" element={<HydroponicsFodder />} />
             <Route path="/solutions/animal-nutrition" element={<AnimalNutrition />} />
             <Route path="/solutions/farm-intelligence" element={<FarmIntelligence />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/posts/new" element={<PostEditor />} />
+            <Route path="/admin/posts/:id" element={<PostEditor />} />
+
 
             {/* Admin Routes */}
             <Route path="/admin/login" element={<AdminLogin />} />
